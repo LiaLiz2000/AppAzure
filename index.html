@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhysioLuxe - Agenda de Citas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- VARIABLES Y ESTILOS GLOBALES --- */
+        :root {
+            --bg-color: #FDFBFF; /* Blanco con un toque de lavanda */
+            --primary-color: #EAE6F3; /* Lavanda claro */
+            --accent-color: #D4AF37; /* Oro suave */
+            --text-color: #4A4A4A;
+            --header-color: #333;
+            --white: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL Y LAYOUT --- */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .content-panel {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            flex: 1;
+        }
+
+        /* --- HEADER Y NAVEGACIÓN --- */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--header-color);
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .main-nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            margin-left: 1.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .main-nav a:hover, .main-nav a.active {
+            color: var(--accent-color);
+        }
+
+        /* --- TARJETAS Y PANELES --- */
+        .card {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: var(--header-color);
+        }
+
+        /* --- FORMULARIO DE CITAS --- */
+        .booking-form .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-submit {
+            grid-column: 1 / -1;
+            background: linear-gradient(45deg, var(--accent-color), #d4a037);
+            color: var(--white);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* --- TABLA DE CITAS --- */
+        .appointments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .appointments-table th, .appointments-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .appointments-table th {
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--header-color);
+        }
+
+        .appointments-table tbody tr:hover {
+            background-color: var(--bg-color);
+        }
+
+        /* --- PANEL DE DISPONIBILIDAD (SIDEBAR) --- */
+        .availability-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .availability-list li {
+            background-color: var(--primary-color);
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- MODAL DE CONFIRMACIÓN --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            z-index: 1000;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 3rem;
+            border-radius: 12px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.4s ease;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-message {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-close-modal {
+            background-color: var(--accent-color);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-close-modal:hover {
+            background-color: #b39654;
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 992px) {
+            .main-layout {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .booking-form .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .app-container {
+                padding: 1rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header con logo y navegación -->
+        <header class="app-header">
+            <div class="logo">Physio<span>Luxe</span></div>
+            <nav class="main-nav">
+                <a href="#" class="active">Home</a>
+                <a href="#">Citas</a>
+                <a href="#">Profesionales</a>
+                <a href="#">Contacto</a>
+            </nav>
+        </header>
+
+        <div class="main-layout">
+            <!-- Panel de contenido principal -->
+            <div class="content-panel">
+                <!-- Formulario para agendar cita -->
+                <section id="booking-section" class="card">
+                    <h2 class="card-title">Agendar una Cita</h2>
+                    <form id="booking-form" class="booking-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="patient-name">Nombre Completo</label>
+                                <input type="text" id="patient-name" name="patientName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-datetime">Fecha y Hora</label>
+                                <input type="datetime-local" id="appointment-datetime" name="appointmentDatetime" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="service">Servicio</label>
+                                <select id="service" name="service" required>
+                                    <option value="" disabled selected>Seleccione un servicio</option>
+                                    <option value="Fisioterapia General">Fisioterapia General</option>
+                                    <option value="Masaje Terapéutico">Masaje Terapéutico</option>
+                                    <option value="Fisioterapia Postparto">Fisioterapia Postparto</option>
+                                    <option value="Suelo Pélvico">Suelo Pélvico</option>
+                                    <option value="Terapia Deportiva">Terapia Deportiva</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="professional">Profesional (Opcional)</label>
+                                <select id="professional" name="professional">
+                                    <option value="Cualquiera">Cualquiera disponible</option>
+                                    <option value="Dra. Elena García">Dra. Elena García</option>
+                                    <option value="Dr. Carlos Martínez">Dr. Carlos Martínez</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="email">Email de Confirmación</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <button type="submit" class="btn-submit">Agendar Cita</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Lista de citas agendadas -->
+                <section id="appointments-list-section" class="card">
+                    <h2 class="card-title">Citas Programadas</h2>
+                    <div class="table-container">
+                        <table class="appointments-table">
+                            <thead>
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Servicio</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointments-tbody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel lateral de disponibilidad -->
+            <aside class="sidebar">
+                <div class="card">
+                    <h3 class="card-title">Disponibilidad Hoy</h3>
+                    <ul id="availability-list" class="availability-list">
+                        <!-- Horarios se insertarán con JS -->
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="confirmation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">&#10003;</div>
+            <h3 class="modal-title">¡Cita Registrada!</h3>
+            <p class="modal-message">Tu cita ha sido agendada con éxito. Recibirás una confirmación por email.</p>
+            <button id="btn-close-modal" class="btn-close-modal">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // Se espera a que el DOM esté completamente cargado para ejecutar el script
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+            const bookingForm = document.getElementById('booking-form');
+            const appointmentsTbody = document.getElementById('appointments-tbody');
+            const availabilityList = document.getElementById('availability-list');
+            const modalOverlay = document.getElementById('confirmation-modal');
+            const closeModalButton = document.getElementById('btn-close-modal');
+            const dateTimeInput = document.getElementById('appointment-datetime');
+
+            // --- ESTADO DE LA APLICACIÓN ---
+            // Carga las citas desde localStorage o inicializa un array vacío
+            let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+
+            // --- FUNCIONES --- 
+
+            /**
+             * Guarda el array de citas actual en localStorage.
+             */
+            const saveAppointmentsToLocalStorage = () => {
+                localStorage.setItem('appointments', JSON.stringify(appointments));
+            };
+
+            /**
+             * Formatea la fecha y hora para una mejor visualización.
+             * @param {string} dateTimeString - La fecha en formato ISO (YYYY-MM-DDTHH:mm).
+             * @returns {string} - La fecha y hora formateada (ej: 05/07/2025, 14:30).
+             */
+            const formatDateTime = (dateTimeString) => {
+                const date = new Date(dateTimeString);
+                const options = {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                };
+                return new Intl.DateTimeFormat('es-ES', options).format(date);
+            };
+
+            /**
+             * Añade una nueva fila de cita a la tabla en el DOM.
+             * @param {object} appointment - El objeto de la cita a renderizar.
+             */
+            const addAppointmentToDOM = (appointment) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${appointment.patientName}</td>
+                    <td>${formatDateTime(appointment.appointmentDatetime)}</td>
+                    <td>${appointment.service}</td>
+                    <td>${appointment.email}</td>
+                `;
+                appointmentsTbody.appendChild(tr);
+            };
+
+            /**
+             * Renderiza todas las citas del array en la tabla.
+             */
+            const renderAllAppointments = () => {
+                appointmentsTbody.innerHTML = ''; // Limpia la tabla antes de renderizar
+                appointments.forEach(addAppointmentToDOM);
+            };
+
+            /**
+             * Muestra el modal de confirmación con una animación suave.
+             */
+            const showConfirmationModal = () => {
+                modalOverlay.classList.add('visible');
+            };
+
+            /**
+             * Oculta el modal de confirmación.
+             */
+            const hideConfirmationModal = () => {
+                modalOverlay.classList.remove('visible');
+            };
+            
+            /**
+             * Valida que la fecha y hora seleccionadas no sean en el pasado.
+             */
+            const validateDateTime = () => {
+                const selectedDate = new Date(dateTimeInput.value);
+                const now = new Date();
+                if (selectedDate < now) {
+                    alert('No puedes agendar una cita en una fecha pasada.');
+                    dateTimeInput.value = ''; // Limpia el campo inválido
+                    return false;
+                }
+                return true;
+            };
+            
+            /**
+             * Establece el valor mínimo para el input de fecha y hora al momento actual.
+             */
+            const setMinDateTime = () => {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Ajusta a la zona horaria local
+                const yyyy = now.getFullYear();
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const dd = String(now.getDate()).padStart(2, '0');
+                const hh = String(now.getHours()).padStart(2, '0');
+                const min = String(now.getMinutes()).padStart(2, '0');
+                dateTimeInput.min = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+            };
+
+            /**
+             * Renderiza los horarios de disponibilidad en el panel lateral.
+             */
+            const renderAvailability = () => {
+                const availableSlots = [
+                    '09:00 - 09:50', '10:00 - 10:50', '11:00 - 11:50',
+                    '12:00 - 12:50', '15:00 - 15:50', '16:00 - 16:50',
+                    '17:00 - 17:50'
+                ];
+                availabilityList.innerHTML = '';
+                availableSlots.forEach(slot => {
+                    const li = document.createElement('li');
+                    li.textContent = slot;
+                    availabilityList.appendChild(li);
+                });
+            };
+
+            // --- MANEJADORES DE EVENTOS ---
+
+            // Evento para el envío del formulario
+            bookingForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Previene el envío real del formulario
+
+                if (!validateDateTime()) return; // Detiene si la fecha es inválida
+
+                const formData = new FormData(bookingForm);
+                const newAppointment = {
+                    patientName: formData.get('patientName'),
+                    appointmentDatetime: formData.get('appointmentDatetime'),
+                    service: formData.get('service'),
+                    professional: formData.get('professional'),
+                    email: formData.get('email')
+                };
+
+                // Actualiza el estado y el DOM
+                appointments.push(newAppointment);
+                saveAppointmentsToLocalStorage();
+                addAppointmentToDOM(newAppointment);
+
+                bookingForm.reset(); // Limpia el formulario
+                setMinDateTime(); // Restablece la fecha mínima después de resetear
+                showConfirmationModal(); // Muestra la confirmación
+            });
+
+            // Eventos para cerrar el modal
+            closeModalButton.addEventListener('click', hideConfirmationModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    hideConfirmationModal();
+                }
+            });
+            
+            // Evento para validar la fecha en tiempo real
+            dateTimeInput.addEventListener('change', validateDateTime);
+
+            // --- INICIALIZACIÓN ---
+            renderAllAppointments();
+            renderAvailability();
+            setMinDateTime();
+        });
+    </script>
+</body>
+</html>
